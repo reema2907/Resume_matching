@@ -77,12 +77,20 @@ def course_recommender(course_list):
 connection = pymysql.connect(host='localhost', user='root', password='Igdtuw@123', db='cv')
 cursor = connection.cursor()
 
-def insert_data(name, email, res_score, timestamp,  skills):
-    DB_table_name = 'user_data'
-    insert_sql = "INSERT INTO " + DB_table_name + " VALUES (0, %s, %s, %s, %s, %s)"
-    rec_values = (name, email, str(res_score), timestamp,  skills)
+def insert_data(name, email, res_score, timestamp, skills):
+    DB_table_name = 'user_database'
+
+    # Ensure that SQL placeholders are consistent with pymysql's requirements
+    insert_sql = "INSERT INTO " + DB_table_name + " (Name, Email_ID, resume_score, Timestamp, Skills) VALUES (%s, %s, %s, %s, %s)"
+    # Convert skills list to a string if it's not already a string
+    skills_str = ', '.join(skills) if isinstance(skills, list) else skills
+    # Prepare data tuple
+    rec_values = (name, email, res_score, timestamp, skills_str)
+    # Execute the query
     cursor.execute(insert_sql, rec_values)
     connection.commit()
+
+
 
 st.set_page_config(
     page_title="AI Resume Analyzer",
@@ -106,13 +114,14 @@ def run():
     cursor.execute(db_sql)
 
     # Create table
-    DB_table_name = 'user_data'
+    DB_table_name = 'user_database'
     table_sql = "CREATE TABLE IF NOT EXISTS " + DB_table_name + """
                     (ID INT NOT NULL AUTO_INCREMENT,
                      Name varchar(500) NOT NULL,
                      Email_ID VARCHAR(500) NOT NULL,
                      resume_score VARCHAR(8) NOT NULL,
                      Timestamp VARCHAR(50) NOT NULL,
+                     Skills VARCHAR(5000) NOT NULL,
                      PRIMARY KEY (ID));
                     """
     cursor.execute(table_sql)
@@ -277,36 +286,37 @@ def run():
                 timestamp = str(cur_date + '_' + cur_time)
 
                 st.subheader("**Resume Tips & Ideas💡**")
-                if 'skills' in resume_data:
-                # Extract resume skills
-                  resume_skills = resume_data['skills']
-                   
-                
-                def calculate_cosine_similarity(required_skills, resume_skills):
-               
-               # Convert lists of skills to strings
-                 job_skills_str = ", ".join(required_skills)
-                 resume_skills_str = ", ".join(resume_skills)
-    
-                 # Tokenize job skills and resume skills
-                 text_list = [job_skills_str, resume_skills_str]
-    
-                 # Vectorize the text
-                 vectorizer = CountVectorizer().fit_transform(text_list)
-                 vectors = vectorizer.toarray()
-    
-                # Calculate cosine similarity
-                 similarity_score = cosine_similarity(vectors)[0, 1]
-
-                 return similarity_score
-                
-
-                resume_score=0
-
-                if reco_field.lower() == role.lower():
-                   role_match_score=10
+                    
+                    
+                resume_score = 0
+                if 'Objective' in resume_text:
+                    resume_score = resume_score + 20
+                    st.markdown('''<h5 style='text-align: left; color: #1ed760;'>[+] Awesome! You have added Objective</h4>''',
+                                unsafe_allow_html=True)
                 else:
-                   role_match_score=0;
+                    st.markdown(
+                        '''<h5 style='text-align: left; color: #000000;'>[-] Please add your career objective, it will give your career intension to the Recruiters.</h4>''',
+                        unsafe_allow_html=True)
+
+                if 'Declaration' in resume_text:
+                    resume_score = resume_score + 20
+                    st.markdown(
+                        '''<h5 style='text-align: left; color: #1ed760;'>[+] Awesome! You have added Delcaration/h4>''',
+                        unsafe_allow_html=True)
+                else:
+                    st.markdown(
+                        '''<h5 style='text-align: left; color: #000000;'>[-] Please add Declaration. It will give the assurance that everything written on your resume is true and fully acknowledged by you</h4>''',
+                        unsafe_allow_html=True)
+
+                if 'Hobbies' or 'Interests' in resume_text:
+                    resume_score = resume_score + 20
+                    st.markdown(
+                        '''<h5 style='text-align: left; color: #1ed760;'>[+] Awesome! You have added your Hobbies</h4>''',
+                        unsafe_allow_html=True)
+                else:
+                    st.markdown(
+                        '''<h5 style='text-align: left; color: #000000;'>[-] Please add Hobbies. It will show your persnality to the Recruiters and give the assurance that you are fit for this role or not.</h4>''',
+                        unsafe_allow_html=True)
 
                 if 'Achievements' in resume_text:
                     resume_score = resume_score + 20
@@ -317,7 +327,7 @@ def run():
                     st.markdown(
                         '''<h5 style='text-align: left; color: #000000;'>[-] Please add Achievements. It will show that you are capable for the required position.</h4>''',
                         unsafe_allow_html=True)
- 
+
                 if 'Projects' in resume_text:
                     resume_score = resume_score + 20
                     st.markdown(
@@ -327,15 +337,6 @@ def run():
                     st.markdown(
                         '''<h5 style='text-align: left; color: #000000;'>[-] Please add Projects. It will show that you have done work related the required position or not.</h4>''',
                         unsafe_allow_html=True)
-                    
-                cosine_similarity_score = calculate_cosine_similarity(required_skills, resume_skills)
-
-                
-                # Calculate the final resume score considering all factors and weightage
-                final_score =  cosine_similarity_score * 50 + resume_score  + role_match_score 
- 
-    
-               
 
                 st.subheader("**Resume Score📝**")
                 st.markdown(
@@ -349,21 +350,20 @@ def run():
                 )
                 my_bar = st.progress(0)
                 score = 0
-                for percent_complete in range(int(final_score)):
-   
-
+                for percent_complete in range(resume_score):
                     score += 1
                     time.sleep(0.1)
                     my_bar.progress(percent_complete + 1)
                 st.success('** Your Resume Writing Score: ' + str(score) + '**')
                 st.warning("** Note: This score is calculated based on the content that you have in your Resume. **")
-                st.balloons()
+               
 
-                insert_data(resume_data['name'], resume_data['email'], str(final_score), timestamp,
-                             str(resume_data['skills']),
-                            )
 
-              
+                insert_data(resume_data['name'], resume_data['email'], str(resume_score), timestamp,
+                            str(resume_data['skills']))
+                        
+
+            
 
                 connection.commit()
             else:
@@ -382,16 +382,10 @@ def run():
                 st.success("Welcome")
                 # Display Data
                 # Execute SQL query to fetch data including resume_score
-                cursor.execute('''SELECT Name, Email_ID, resume_score, Timestamp FROM user_data''')
+                cursor.execute('''SELECT Name, Email_ID, resume_score, Timestamp FROM user_database''')
                 data = cursor.fetchall()
                 # Extracting the role from the job description box
-                if 'role' not in st.session_state or not st.session_state.role:
-                 st.error("Please enter a valid role in the job description box.")
-                else:
-                 role = st.session_state.role
-        
-                # Adding a header for the user data and the role entered in the job description
-                st.header(f"**User's👨‍💻 Data for applied role: {role}**")
+                
                 
         # Create DataFrame with fetched data and appropriate column names
                 df = pd.DataFrame(data, columns=['Name', 'Email', 'resume_score', 'Timestamp'])
