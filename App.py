@@ -73,6 +73,8 @@ def course_recommender(course_list):
             break
     return rec_course
 
+
+
 # Connect to database
 connection = pymysql.connect(host='localhost', user='root', password='Igdtuw@123', db='cv')
 cursor = connection.cursor()
