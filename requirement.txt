@@ -1,0 +1,12 @@
+pdfminer3
+pyresparser
+streamlit==1.33.0
+pandas
+pafy
+plotly
+pymysql
+streamlit-tags
+Pillow
+youtube-dl
+nltk==3.4.5
+spacy==2.3.5
