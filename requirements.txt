@@ -1,7 +1,6 @@
-python==3.8.3
 pdfminer3
 pyresparser
-streamlit==1.33.0
+streamlit
 pandas
 pafy
 plotly
@@ -10,4 +9,5 @@ streamlit-tags
 Pillow
 youtube-dl
 nltk==3.4.5
+pdfminer3
 spacy==2.3.5
