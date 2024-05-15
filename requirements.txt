@@ -10,4 +10,4 @@ Pillow
 youtube-dl
 nltk==3.4.5
 pdfminer3
-spacy==2.3.5
+spacy
