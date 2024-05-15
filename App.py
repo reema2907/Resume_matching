@@ -586,33 +586,34 @@ def run():
                 st.error("** Sorry, we couldn't process your resume. Please try again later. **")
 
 
-    else:
-        ## Admin Side
-        st.success('Welcome to Scoreboard')
-        
-        ad_user = st.text_input("Username")
-        ad_password = st.text_input("Password", type='password')
-        ad_role = st.text_input("Enter Role")  # New input field for entering the role
-        
-        if st.button('Login'):
-           if ad_user == st.secrets["ADMIN_USERNAME"] and ad_password == st.secrets["ADMIN_PASSWORD"]:
-                st.success("Welcome")
-                # Display Data
-                # Execute SQL query to fetch data including resume_score
-                cursor.execute('''SELECT Name, Email_ID, resume_score, Timestamp FROM user_database WHERE Role = %s''', (ad_role,))
-                data = cursor.fetchall()
-                
-                # Create DataFrame with fetched data and appropriate column names
-                df = pd.DataFrame(data, columns=['Name', 'Email', 'resume_score', 'Timestamp'])
-                # Sort the DataFrame by 'resume_score' column in descending order
-                df_sorted = df.sort_values(by='resume_score', ascending=False)
-        
-                # Display the sorted DataFrame
-                st.dataframe(df_sorted)
-            
-                st.markdown(get_table_download_link(df_sorted, 'User_Data.csv', 'Download Report'), unsafe_allow_html=True)
-            else:
-                st.error("Wrong ID & Password Provided")
+      else:
+          ## Admin Side
+          st.success('Welcome to Scoreboard')
+          
+          ad_user = st.text_input("Username")
+          ad_password = st.text_input("Password", type='password')
+          ad_role = st.text_input("Enter Role")  # New input field for entering the role
+          
+         if st.button('Login'):
+              if ad_user == st.secrets["ADMIN_USERNAME"] and ad_password == st.secrets["ADMIN_PASSWORD"]:
+                  st.success("Welcome")
+                  # Display Data
+                  # Execute SQL query to fetch data including resume_score
+                  cursor.execute('''SELECT Name, Email_ID, resume_score, Timestamp FROM user_database WHERE Role = %s''', (ad_role,))
+                  data = cursor.fetchall()
+                  
+                  # Create DataFrame with fetched data and appropriate column names
+                  df = pd.DataFrame(data, columns=['Name', 'Email', 'resume_score', 'Timestamp'])
+                  # Sort the DataFrame by 'resume_score' column in descending order
+                  df_sorted = df.sort_values(by='resume_score', ascending=False)
+          
+                  # Display the sorted DataFrame
+                  st.dataframe(df_sorted)
+              
+                  st.markdown(get_table_download_link(df_sorted, 'User_Data.csv', 'Download Report'), unsafe_allow_html=True)
+              else:
+                  st.error("Wrong ID & Password Provided")
+
 
 run()
 
