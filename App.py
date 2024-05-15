@@ -77,11 +77,23 @@ def course_recommender(course_list):
 
 # Connect to database
 # Load environment variables from secrets.toml
+db_host = st.secrets["DB_HOST"]
+db_user = st.secrets["DB_USER"]
+db_password = st.secrets["DB_PASSWORD"]
+db_name = st.secrets["DB_NAME"]
+
+admin_username = st.secrets["ADMIN_USERNAME"]
+admin_password = st.secrets["ADMIN_PASSWORD"]
 
 
 
 # Connect to database
-connection = pymysql.connect(host='localhost', user='root', password='Igdtuw@123', db='cv')
+connection = pymysql.connect(
+    host=st.secrets["DB_HOST"],
+    user=st.secrets["DB_USER"],
+    password=st.secrets["DB_PASSWORD"],
+    db=st.secrets["DB_NAME"]
+)
 cursor = connection.cursor()
 
 
@@ -583,7 +595,7 @@ def run():
         ad_role = st.text_input("Enter Role")  # New input field for entering the role
         
         if st.button('Login'):
-            if ad_user == 'reema123' and ad_password == '1234':
+           if ad_user == st.secrets["ADMIN_USERNAME"] and ad_password == st.secrets["ADMIN_PASSWORD"]:
                 st.success("Welcome")
                 # Display Data
                 # Execute SQL query to fetch data including resume_score
