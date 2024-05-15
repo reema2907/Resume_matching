@@ -586,7 +586,7 @@ def run():
                 st.error("** Sorry, we couldn't process your resume. Please try again later. **")
 
 
-   else:
+    else:
         ## Admin Side
         st.success('Welcome to Scoreboard')
         
